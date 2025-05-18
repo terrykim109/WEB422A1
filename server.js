@@ -8,7 +8,7 @@
  *
  * Name: Hyun Joon Kim Student ID: 117639237 Date: May 18 2025
  *
- * Published URL: ___________________________________________________________
+ * Published URL: https://web-422-a1-g6pb.vercel.app/
  *
  ********************************************************************************/
 require("dotenv").config();
@@ -22,6 +22,7 @@ const db = new ListingsDB();
 
 app.use(cors());
 app.use(express.json());
+
 
 app.get("/", (req, res) => {
   res.json({ message: "API Listening" });
