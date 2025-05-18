@@ -11,7 +11,7 @@
  * Published URL: ___________________________________________________________
  *
  ********************************************************************************/
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
@@ -27,13 +27,12 @@ app.get("/", (req, res) => {
   res.json({ message: "API Listening" });
 });
 
-
-// This route uses the body of the request to add a new "Listing" document to the collection 
+// This route uses the body of the request to add a new "Listing" document to the collection
 // and return the newly created listing object / fail message to the client.
 
 app.post("/api/listings", async (req, res) => {
   try {
-    // db.addNewListing(data): Create a new listing in the collection using the object 
+    // db.addNewListing(data): Create a new listing in the collection using the object
     // passed in the "data" parameter.
     const newListing = await db.addNewListing(req.body);
     res.status(201).json(newListing);
@@ -41,7 +40,6 @@ app.post("/api/listings", async (req, res) => {
     res.status(500).json({ message: "Unable to add listing", error: err });
   }
 });
-
 
 // This route must accept the numeric query parameters "page" and "perPage" as well as the (optional) string
 // parameter "name". It will use these values to return all "Listings" objects for a specific "page" to the client as well as optionally filtering by
@@ -52,8 +50,13 @@ app.get("/api/listings", async (req, res) => {
   const perPage = parseInt(req.query.perPage);
   const name = req.query.name; // optional param
 
-  if (isNaN(page) || isNaN(perPage)) { // checking if page and perPage are numbers
-    return res.status(400).json({ message: "Page or perPage are in an incorrect non-numerical format." });
+  if (isNaN(page) || isNaN(perPage)) {
+    // checking if page and perPage are numbers
+    return res
+      .status(400)
+      .json({
+        message: "Page or perPage are in an incorrect non-numerical format.",
+      });
   }
 
   try {
@@ -118,15 +121,34 @@ app.delete("/api/listings/:id", async (req, res) => {
   }
 });
 
-// db.initialize(connectionString): Establish a connection with the MongoDB server and initialize the "Listing"
-// model with the " listingsAndReviews" collection
+// For Vercel
+async function vercelHandler(req, res) {
+  if (!db.Listing) {
+    try {
+      await db.initialize(process.env.MONGODB_CONN_STRING);
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ message: "Unable to initialize db", error: err.toString() });
+    }
+  }
+  app(req, res);
+}
 
-db.initialize(process.env.MONGODB_CONN_STRING)
-  .then(() => {
-    app.listen(HTTP_PORT, () => {
-      console.log(`server listening on: ${HTTP_PORT}`);
+if (process.env.VERCEL) {
+  // For grading on vercel
+  module.exports = vercelHandler;
+} else {
+  // db.initialize(connectionString): Establish a connection with the MongoDB server and initialize the "Listing"
+  // model with the " listingsAndReviews" collection
+
+  db.initialize(process.env.MONGODB_CONN_STRING)
+    .then(() => {
+      app.listen(process.env.PORT || 8080, () => {
+        console.log(`server listening on: ${process.env.PORT || 8080}`);
+      });
+    })
+    .catch((err) => {
+      console.error("Failed to initialize DB:", err);
     });
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+}
