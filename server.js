@@ -46,29 +46,49 @@ app.post("/api/listings", async (req, res) => {
 // parameter "name". It will use these values to return all "Listings" objects for a specific "page" to the client as well as optionally filtering by
 // "name", if provided (in this case, it will show both listings containing the name “Volcanoes National Park”).
 
-app.get("/api/listings", async (req, res) => {
-  const page = parseInt(req.query.page); // converting to integer
-  const perPage = parseInt(req.query.perPage);
-  const name = req.query.name; // optional param
+// app.get("/api/listings", async (req, res) => {
+//   const page = parseInt(req.query.page); // converting to integer
+//   const perPage = parseInt(req.query.perPage);
+//   const name = req.query.name; // optional param
 
-  if (isNaN(page) || isNaN(perPage)) {
-    // checking if page and perPage are numbers
-    return res
-      .status(400)
-      .json({
-        message: "Page or perPage are in an incorrect non-numerical format.",
-      });
+//   if (isNaN(page) || isNaN(perPage)) {
+//     // checking if page and perPage are numbers
+//     return res
+//       .status(400)
+//       .json({
+//         message: "Page or perPage are in an incorrect non-numerical format.",
+//       });
+//   }
+
+//   try {
+//     // db.getAllListing(page, perPage, name): Return an array of all listing for a specific page
+//     //  (sorted by number_of_reviews), given the number of items per page
+//     const listings = await db.getAllListings(page, perPage, name);
+//     res.json(listings);
+//   } catch (err) {
+//     res.status(500).json({ message: "Unable to get listings", error: err });
+//   }
+// });
+
+app.get("/api/listings", async (req, res) => {
+  function parsePositiveInt(value, defaultValue) {
+    const parsed = parseInt(value);
+    return isNaN(parsed) || parsed <= 0 ? defaultValue : parsed;
   }
 
+  const page = parsePositiveInt(req.query.page, 1); // default to page 1
+  const perPage = parsePositiveInt(req.query.perPage, 10); // default to 10 per page
+  const name = req.query.name; // optional filter
+
   try {
-    // db.getAllListing(page, perPage, name): Return an array of all listing for a specific page
-    //  (sorted by number_of_reviews), given the number of items per page
     const listings = await db.getAllListings(page, perPage, name);
     res.json(listings);
   } catch (err) {
     res.status(500).json({ message: "Unable to get listings", error: err });
   }
 });
+
+
 
 // This route must accept a route parameter that represents the _id of the desired listing object.
 // It will use this parameter to return a specific "Listing" object to the client.
