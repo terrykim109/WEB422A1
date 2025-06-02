@@ -46,52 +46,52 @@ app.post("/api/listings", async (req, res) => {
 // parameter "name". It will use these values to return all "Listings" objects for a specific "page" to the client as well as optionally filtering by
 // "name", if provided (in this case, it will show both listings containing the name “Volcanoes National Park”).
 
-// app.get("/api/listings", async (req, res) => {
-//   const page = parseInt(req.query.page); // converting to integer
-//   const perPage = parseInt(req.query.perPage);
-//   const name = req.query.name; // optional param
-
-//   if (isNaN(page) || isNaN(perPage)) {
-//     // checking if page and perPage are numbers
-//     return res
-//       .status(400)
-//       .json({
-//         message: "Page or perPage are in an incorrect non-numerical format.",
-//       });
-//   }
-
-//   try {
-//     // db.getAllListing(page, perPage, name): Return an array of all listing for a specific page
-//     //  (sorted by number_of_reviews), given the number of items per page
-//     const listings = await db.getAllListings(page, perPage, name);
-//     res.json(listings);
-//   } catch (err) {
-//     res.status(500).json({ message: "Unable to get listings", error: err });
-//   }
-// });
-
 app.get("/api/listings", async (req, res) => {
-  const page = parseInt(req.query.page);
+  const page = parseInt(req.query.page); // converting to integer
   const perPage = parseInt(req.query.perPage);
-  const name = req.query.name;
-
-  console.log("Incoming request:", { page, perPage, name });
+  const name = req.query.name; // optional param
 
   if (isNaN(page) || isNaN(perPage)) {
-    return res.status(400).json({
-      message: "Page or perPage are in an incorrect non-numerical format.",
-    });
+    // checking if page and perPage are numbers
+    return res
+      .status(400)
+      .json({
+        message: "Page or perPage are in an incorrect non-numerical format.",
+      });
   }
 
   try {
+    // db.getAllListing(page, perPage, name): Return an array of all listing for a specific page
+    //  (sorted by number_of_reviews), given the number of items per page
     const listings = await db.getAllListings(page, perPage, name);
-    console.log("Listings returned:", listings.length);
     res.json(listings);
   } catch (err) {
-    console.error("Error getting listings:", err);
     res.status(500).json({ message: "Unable to get listings", error: err });
   }
 });
+
+// app.get("/api/listings", async (req, res) => {
+//   const page = parseInt(req.query.page);
+//   const perPage = parseInt(req.query.perPage);
+//   const name = req.query.name;
+
+//   console.log("Incoming request:", { page, perPage, name });
+
+//   if (isNaN(page) || isNaN(perPage)) {
+//     return res.status(400).json({
+//       message: "Page or perPage are in an incorrect non-numerical format.",
+//     });
+//   }
+
+//   try {
+//     const listings = await db.getAllListings(page, perPage, name);
+//     console.log("Listings returned:", listings.length);
+//     res.json(listings);
+//   } catch (err) {
+//     console.error("Error getting listings:", err);
+//     res.status(500).json({ message: "Unable to get listings", error: err });
+//   }
+// });
 
 
 
