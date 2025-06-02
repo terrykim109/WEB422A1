@@ -13,6 +13,7 @@ module.exports = class ListingsDB {
       const db = mongoose.createConnection(connectionString);
 
       db.once('error', (err) => {
+             console.error("Database connection error:", err); 
         reject(err);
       });
       db.once('open', () => {
