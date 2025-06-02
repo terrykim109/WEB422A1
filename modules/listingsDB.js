@@ -17,6 +17,7 @@ module.exports = class ListingsDB {
         reject(err);
       });
       db.once('open', () => {
+              console.log("DB connection opened successfully");
         this.Listing = db.model("listing", listingSchema);
         resolve();
       });
