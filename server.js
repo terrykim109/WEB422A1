@@ -71,22 +71,28 @@ app.post("/api/listings", async (req, res) => {
 // });
 
 app.get("/api/listings", async (req, res) => {
-  function parsePositiveInt(value, defaultValue) {
-    const parsed = parseInt(value);
-    return isNaN(parsed) || parsed <= 0 ? defaultValue : parsed;
-  }
+  const page = parseInt(req.query.page);
+  const perPage = parseInt(req.query.perPage);
+  const name = req.query.name;
 
-  const page = parsePositiveInt(req.query.page, 1); // default to page 1
-  const perPage = parsePositiveInt(req.query.perPage, 10); // default to 10 per page
-  const name = req.query.name; // optional filter
+  console.log("Incoming request:", { page, perPage, name });
+
+  if (isNaN(page) || isNaN(perPage)) {
+    return res.status(400).json({
+      message: "Page or perPage are in an incorrect non-numerical format.",
+    });
+  }
 
   try {
     const listings = await db.getAllListings(page, perPage, name);
+    console.log("Listings returned:", listings.length);
     res.json(listings);
   } catch (err) {
+    console.error("Error getting listings:", err);
     res.status(500).json({ message: "Unable to get listings", error: err });
   }
 });
+
 
 
 
